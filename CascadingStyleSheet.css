@@ -1,0 +1,29 @@
+body {
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+#game {
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+    margin: 0;
+    background-color: #272727;
+    justify-content: center;
+    justify-items: center;
+}
+
+.gameRow {
+    padding: 0;
+    margin: auto;
+    background-color: #0f0f0f;
+    justify-self: center;
+}
+
+.gameSquare {
+    padding: 0;
+    margin: 0;
+    background-color: #9c9c9c;
+    display: inline-flex;
+}
