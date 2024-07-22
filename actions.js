@@ -1,27 +1,31 @@
 screenHeight = document.body.scrollHeight;
-screenWidth = window.screen.availWidth;
+screenWidth = document.body.scrollWidth;
 
 const board = {
-    boardWidth: 15,
-    boardHeight: 15,
-    boardArray: 
-    [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],],
-    renderBoard() {
+    boardWidth: 0,
+    boardHeight: 0,
+    boardArray: 0,
+
+    createBoard(arrayWidth, arrayHeight) {
+        this.boardWidth = arrayWidth;
+        this.boardHeight = arrayHeight;
+        this.boardArray = new Array(arrayHeight);
+        for (let j = 0; j < this.boardHeight; j++) {
+            this.boardArray[j] = new Array(arrayWidth);
+            if (j === 0 || j === this.boardHeight-1) {
+                for (let i = 0; i < this.boardWidth; i++) {
+                    this.boardArray[j][i] = 1;
+                };
+            } else {
+                for (let i = 0; i < this.boardWidth; i++) {
+                    this.boardArray[j][i] = i === 0 || i === this.boardWidth-1 ? 1 : 0;
+                };
+            };
+            
+        };
+    },
+
+    renderCurrentBoard() {
 
 
         let xPos = 1;
@@ -32,14 +36,11 @@ const board = {
             let currentRow = document.createElement('div');
             currentRow.className = 'gameRow';
             currentRow.id = `row-${yPos}-`;
-            
 
             for (let j = 0; j < this.boardWidth; j++) {
                 let newTile = document.createElement('div');
                 newTile.className = "gameSquare";
                 newTile.id = `square-${xPos}-${yPos}`;
-                //newTile.style.width = `${screenHeight/this.boardWidth}`+"px";
-                //newTile.style.height = `${screenHeight/board.boardHeight}`+"px";
                 currentRow.appendChild(newTile);
                 xPos++;
             }
@@ -50,20 +51,73 @@ const board = {
         }
 
         let allRows = document.getElementsByClassName("gameRow");
-        for (i of allRows) {
-            i.style.height = `${screenHeight/board.boardHeight}`+"px";
-            i.style.width = `${screenHeight}`+"px";
+
+        if (screenWidth/screenHeight > this.boardWidth/this.boardHeight) {
+            for (i of allRows) {
+                i.style.height = `${100/this.boardHeight}vh`;
+                i.style.width = `100vh`;
+            };
+        } else {
+            for (i of allRows) {
+                i.style.height = `100vh`;
+                i.style.width = `${screenWidth}`+"px";
+            };
         };
 
+
         let allSquares = document.getElementsByClassName("gameSquare");
-        for (i of allSquares) {
-            i.style.height = "100%";
-            i.style.width = `${screenHeight/board.boardHeight}`+"px";
-        };
+
+            for (i of allSquares) {
+                i.style.height = "100%";
+                i.style.width = `${100/this.boardWidth}%`;
+            };
 
     },
 
 };
 
-board.renderBoard();
+const game = {
+    gameRunning: true,
+    startGame(speed=250, color="#533321") {
+        while (gameRunning) {
+            setTimeout(this.nextTurn(), speed);
+        };
+    },
+    nextTurn() {
+        this.moveOneSquare(currentDirection);
+    },
+    moveOneSquare(CD) {
+        switch (CD) {
+            case "left":
+                this.handleObstacle([[currentPosition[0]][currentPosition[1]-1]]);
+                break;
+            case "right":
+                this.handleObstacle([[currentPosition[0]][currentPosition[1]+1]]);
+                break;
+            case "up":
+                this.handleObstacle([[currentPosition[0]-1][currentPosition[1]]]);
+                break;
+            case "down":
+                this.handleObstacle([[currentPosition[0]-1][currentPosition[1]]]);
+                break;
+        };
+    },
+    handleObstacle(nextSnakeHeadPosition) {
+        switch (board.boardArray[nextSnakeHeadPosition[0]][nextSnakeHeadPosition[1]]) {
+            case 0:
+                this.advanceToNextSquare(nextSnakeHeadPosition);
+                break;
+            case 1:
+                this.hitWall(nextSnakeHeadPosition);
+                break;
+            case 2:
+                this.consumeSatisfyinglyCrunchyObject(nextSnakeHeadPosition);
+                break;
+        };
+        
+    },
+};
+
+board.createBoard(14,14);
+board.renderCurrentBoard();
 
